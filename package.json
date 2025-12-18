@@ -1,0 +1,26 @@
+{
+  "name": "mobile-reverse-engineering-slides",
+  "version": "1.0.0",
+  "description": "Slidev presentation về Mobile Reverse Engineering & Security",
+  "scripts": {
+    "dev": "slidev",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "keywords": [
+    "slidev",
+    "presentation",
+    "reverse-engineering",
+    "mobile-security"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@slidev/cli": "^0.47.0",
+    "@slidev/theme-default": "^0.24.0"
+  },
+  "dependencies": {
+    "@slidev/types": "^0.47.0"
+  }
+}
+
