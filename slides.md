@@ -18,7 +18,7 @@ colorSchema: dark
 
 <div class="pt-12 text-lg opacity-70">
   <p>Mobile Reverse Engineering & Security Seminar</p>
-  <p class="mt-4 text-base">[Tên của bạn] - [Ngày tháng]</p>
+  <p class="mt-4 text-base">Cem Software - 18/12/2025</p>
 </div>
 
 <div class="pt-8">
