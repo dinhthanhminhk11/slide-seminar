@@ -1,0 +1,56 @@
+/* Tăng diện tích hiển thị slide */
+.slidev-layout {
+  padding: 1rem 2rem !important;
+}
+
+/* Tăng kích thước font chữ cơ bản */
+:root {
+  font-size: 18px;
+}
+
+/* Tối ưu không gian cho code blocks */
+pre {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Giảm padding cho grid layouts */
+.grid {
+  gap: 1rem !important;
+}
+
+/* Tối ưu spacing */
+.space-y-3 > * + * {
+  margin-top: 0.5rem !important;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.3rem !important;
+}
+
+/* Tăng kích thước heading */
+h1 {
+  font-size: 2.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+h2 {
+  font-size: 1.8rem !important;
+  margin-bottom: 0.8rem !important;
+}
+
+h3 {
+  font-size: 1.3rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Giảm padding cho boxes */
+.p-4 {
+  padding: 0.75rem !important;
+}
+
+/* Tối ưu cho two-cols layout */
+.slidev-layout.two-cols {
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}

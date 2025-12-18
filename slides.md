@@ -1,7 +1,7 @@
 ---
 theme: default
-background: '#0a0e27'
-title: 'Unmasking the App: Reverse Engineering & Defense'
+background: "#0a0e27"
+title: "Unmasking the App: Reverse Engineering & Defense"
 class: text-center
 highlighter: shiki
 lineNumbers: false
@@ -13,6 +13,7 @@ colorSchema: dark
 ---
 
 # Unmasking the App
+
 ## Reverse Engineering & Defense
 
 <div class="pt-12 text-lg opacity-70">
@@ -140,11 +141,13 @@ layout: default
 <div class="mt-4 space-y-3">
 
 **Khái niệm:**
+
 - Chặn và kiểm tra traffic giữa app và server
 - Xem được requests/responses không mã hóa
 - Phân tích API endpoints và payloads
 
 **Công cụ:**
+
 - **Burp Suite** (Professional/Community)
 - **Charles Proxy**
 - **mitmproxy**
@@ -160,12 +163,14 @@ layout: default
 <div class="mt-4 space-y-2">
 
 ### Bước 1: Cấu hình Proxy
+
 ```
 Burp Proxy: 127.0.0.1:8080
 Emulator Settings → Proxy → Manual
 ```
 
 ### Bước 2: Cài đặt Certificate
+
 ```bash
 # Export Burp Certificate
 # Settings → Proxy → Import/Export CA Certificate
@@ -179,6 +184,7 @@ chmod 644 /system/etc/security/cacerts/burp-cert.der
 ```
 
 ### Bước 3: Trust Certificate
+
 - Settings → Security → Install from storage
 - Chọn burp-cert.der
 
@@ -209,12 +215,14 @@ layout: default
 <div class="mt-4 space-y-3">
 
 **Frida là gì?**
+
 - Dynamic instrumentation toolkit
 - Hook vào running processes
 - Inject JavaScript vào native apps
 - Không cần modify source code
 
 **Cơ chế hoạt động:**
+
 - Frida-server chạy trên device (rooted)
 - Frida client trên máy tính
 - Communication qua USB/Network
@@ -244,6 +252,7 @@ graph TD
 <div class="mt-4 space-y-3">
 
 ### 1. Cài đặt frida-server
+
 ```bash
 # Download frida-server cho Android
 wget https://github.com/frida/frida/releases/download/16.0.0/frida-server-16.0.0-android-arm64.xz
@@ -255,11 +264,13 @@ adb shell "su -c '/data/local/tmp/frida-server &'"
 ```
 
 ### 2. Cài đặt Frida client
+
 ```bash
 pip install frida-tools
 ```
 
 ### 3. Verify connection
+
 ```bash
 frida-ps -U
 ```
@@ -310,48 +321,53 @@ layout: default
 
 ```typescript
 // ssl-pinning-bypass.ts
-Java.perform(function() {
-    console.log("[*] Starting SSL Pinning Bypass...");
-    
-    // Hook X509TrustManager
-    var X509TrustManager = Java.use("javax.net.ssl.X509TrustManager");
-    var SSLContext = Java.use("javax.net.ssl.SSLContext");
-    
-    // Bypass checkClientTrusted
-    var TrustManager = Java.registerClass({
-        name: "com.example.TrustManager",
-        implements: [X509TrustManager],
-        methods: {
-            checkClientTrusted: function(chain, authType) {},
-            checkServerTrusted: function(chain, authType) {},
-            getAcceptedIssuers: function() {
-                return [];
-            }
-        }
-    });
-    
-    // Hook OkHttp CertificatePinner (nếu app dùng OkHttp)
-    try {
-        var CertificatePinner = Java.use("okhttp3.CertificatePinner");
-        CertificatePinner.check.overload('java.lang.String', 'java.util.List').implementation = function() {
-            console.log("[+] Bypassed OkHttp CertificatePinner");
-        };
-    } catch(e) {
-        console.log("[-] OkHttp not found");
-    }
-    
-    // Hook TrustManagerImpl (Android internal)
-    try {
-        var TrustManagerImpl = Java.use("com.android.org.conscrypt.TrustManagerImpl");
-        TrustManagerImpl.verifyChain.implementation = function() {
-            console.log("[+] Bypassed TrustManagerImpl");
-            return arguments[0]; // Return chain without verification
-        };
-    } catch(e) {
-        console.log("[-] TrustManagerImpl not found");
-    }
-    
-    console.log("[+] SSL Pinning bypassed!");
+Java.perform(function () {
+  console.log("[*] Starting SSL Pinning Bypass...");
+
+  // Hook X509TrustManager
+  var X509TrustManager = Java.use("javax.net.ssl.X509TrustManager");
+  var SSLContext = Java.use("javax.net.ssl.SSLContext");
+
+  // Bypass checkClientTrusted
+  var TrustManager = Java.registerClass({
+    name: "com.example.TrustManager",
+    implements: [X509TrustManager],
+    methods: {
+      checkClientTrusted: function (chain, authType) {},
+      checkServerTrusted: function (chain, authType) {},
+      getAcceptedIssuers: function () {
+        return [];
+      },
+    },
+  });
+
+  // Hook OkHttp CertificatePinner (nếu app dùng OkHttp)
+  try {
+    var CertificatePinner = Java.use("okhttp3.CertificatePinner");
+    CertificatePinner.check.overload(
+      "java.lang.String",
+      "java.util.List"
+    ).implementation = function () {
+      console.log("[+] Bypassed OkHttp CertificatePinner");
+    };
+  } catch (e) {
+    console.log("[-] OkHttp not found");
+  }
+
+  // Hook TrustManagerImpl (Android internal)
+  try {
+    var TrustManagerImpl = Java.use(
+      "com.android.org.conscrypt.TrustManagerImpl"
+    );
+    TrustManagerImpl.verifyChain.implementation = function () {
+      console.log("[+] Bypassed TrustManagerImpl");
+      return arguments[0]; // Return chain without verification
+    };
+  } catch (e) {
+    console.log("[-] TrustManagerImpl not found");
+  }
+
+  console.log("[+] SSL Pinning bypassed!");
 });
 ```
 
@@ -362,6 +378,7 @@ Java.perform(function() {
 <div class="mt-4 p-4 bg-gray-800 rounded">
 
 **Cách sử dụng:**
+
 ```bash
 frida -U -f com.example.app -l ssl-pinning-bypass.ts --no-pause
 ```
@@ -410,61 +427,63 @@ layout: default
 
 ```typescript
 // iap-bypass.ts
-Java.perform(function() {
-    console.log("[*] Starting IAP Bypass...");
-    
-    // Method 1: Hook isPremium() method
-    try {
-        var PremiumManager = Java.use("com.example.app.PremiumManager");
-        
-        PremiumManager.isPremium.overload().implementation = function() {
-            console.log("[+] isPremium() called - returning true");
-            return true; // Force premium
-        };
-        
-        console.log("[+] Hooked PremiumManager.isPremium()");
-    } catch(e) {
-        console.log("[-] PremiumManager not found: " + e);
-    }
-    
-    // Method 2: Hook Google Play Billing
-    try {
-        var BillingClient = Java.use("com.android.billingclient.api.BillingClient");
-        
-        // Hook purchase verification
-        var Purchase = Java.use("com.android.billingclient.api.Purchase");
-        Purchase.getPurchaseState.implementation = function() {
-            var state = this.getPurchaseState();
-            console.log("[+] Purchase state: " + state);
-            // Return PURCHASED state (0)
-            return 0;
-        };
-        
-        console.log("[+] Hooked Google Play Billing");
-    } catch(e) {
-        console.log("[-] Google Play Billing not found");
-    }
-    
-    // Method 3: Hook subscription check
-    try {
-        var SubscriptionManager = Java.use("com.example.app.SubscriptionManager");
-        
-        SubscriptionManager.isSubscribed.overload().implementation = function() {
-            console.log("[+] isSubscribed() called - returning true");
-            return true;
-        };
-        
-        SubscriptionManager.hasActiveSubscription.overload('java.lang.String').implementation = function(planId) {
-            console.log("[+] hasActiveSubscription(" + planId + ") - returning true");
-            return true;
-        };
-        
-        console.log("[+] Hooked SubscriptionManager");
-    } catch(e) {
-        console.log("[-] SubscriptionManager not found");
-    }
-    
-    console.log("[+] IAP Bypass completed!");
+Java.perform(function () {
+  console.log("[*] Starting IAP Bypass...");
+
+  // Method 1: Hook isPremium() method
+  try {
+    var PremiumManager = Java.use("com.example.app.PremiumManager");
+
+    PremiumManager.isPremium.overload().implementation = function () {
+      console.log("[+] isPremium() called - returning true");
+      return true; // Force premium
+    };
+
+    console.log("[+] Hooked PremiumManager.isPremium()");
+  } catch (e) {
+    console.log("[-] PremiumManager not found: " + e);
+  }
+
+  // Method 2: Hook Google Play Billing
+  try {
+    var BillingClient = Java.use("com.android.billingclient.api.BillingClient");
+
+    // Hook purchase verification
+    var Purchase = Java.use("com.android.billingclient.api.Purchase");
+    Purchase.getPurchaseState.implementation = function () {
+      var state = this.getPurchaseState();
+      console.log("[+] Purchase state: " + state);
+      // Return PURCHASED state (0)
+      return 0;
+    };
+
+    console.log("[+] Hooked Google Play Billing");
+  } catch (e) {
+    console.log("[-] Google Play Billing not found");
+  }
+
+  // Method 3: Hook subscription check
+  try {
+    var SubscriptionManager = Java.use("com.example.app.SubscriptionManager");
+
+    SubscriptionManager.isSubscribed.overload().implementation = function () {
+      console.log("[+] isSubscribed() called - returning true");
+      return true;
+    };
+
+    SubscriptionManager.hasActiveSubscription.overload(
+      "java.lang.String"
+    ).implementation = function (planId) {
+      console.log("[+] hasActiveSubscription(" + planId + ") - returning true");
+      return true;
+    };
+
+    console.log("[+] Hooked SubscriptionManager");
+  } catch (e) {
+    console.log("[-] SubscriptionManager not found");
+  }
+
+  console.log("[+] IAP Bypass completed!");
 });
 ```
 
@@ -475,6 +494,7 @@ Java.perform(function() {
 <div class="mt-4 p-4 bg-gray-800 rounded">
 
 **Cách sử dụng:**
+
 ```bash
 # Attach vào running app
 frida -U -f com.example.app -l iap-bypass.ts --no-pause
@@ -500,6 +520,7 @@ layout: default
 <div class="mt-3 space-y-2 text-sm">
 
 **ProGuard/R8:**
+
 ```groovy
 android {
     buildTypes {
@@ -514,6 +535,7 @@ android {
 ```
 
 **DexGuard** (Commercial):
+
 - Advanced obfuscation
 - String encryption
 - Control flow obfuscation
@@ -529,9 +551,10 @@ android {
 <div class="mt-3 space-y-2 text-sm">
 
 **Root Detection:**
+
 ```java
 public boolean isRooted() {
-    String[] paths = {"/system/app/Superuser.apk", 
+    String[] paths = {"/system/app/Superuser.apk",
                       "/sbin/su", "/system/bin/su"};
     for (String path : paths) {
         if (new File(path).exists()) return true;
@@ -541,6 +564,7 @@ public boolean isRooted() {
 ```
 
 **Frida Detection:**
+
 ```java
 // Check for frida-server process
 Process process = Runtime.getRuntime()
@@ -549,6 +573,7 @@ Process process = Runtime.getRuntime()
 ```
 
 **Anti-Debugging:**
+
 - Check Debug.isDebuggerConnected()
 - ptrace protection
 - Timing checks
@@ -564,6 +589,7 @@ Process process = Runtime.getRuntime()
 <div class="mt-3 space-y-2 text-sm">
 
 **AES Encryption:**
+
 ```java
 public String encrypt(String data, String key) {
     SecretKeySpec secretKey = new SecretKeySpec(
@@ -571,12 +597,13 @@ public String encrypt(String data, String key) {
     Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
     cipher.init(Cipher.ENCRYPT_MODE, secretKey);
     return Base64.encodeToString(
-        cipher.doFinal(data.getBytes()), 
+        cipher.doFinal(data.getBytes()),
         Base64.DEFAULT);
 }
 ```
 
 **Best Practices:**
+
 - Use hardware-backed keystore
 - Key derivation (PBKDF2)
 - Secure key storage
@@ -605,8 +632,155 @@ public String encrypt(String data, String key) {
 </div>
 
 ---
+layout: two-cols
+---
+
+# R8 Optimizer: BẮT BUỘC cho Production! 🚀
+
+<div class="mt-4">
+
+## Cấu hình R8
+
+```kotlin
+android {
+    buildTypes {
+        release {
+            // Bật code optimization
+            isMinifyEnabled = true
+
+            // Bật resource shrinking
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile(
+                    "proguard-android-optimize.txt"
+                ),
+                "keep-rules.pro"
+            )
+        }
+    }
+}
+```
+
+### Tối ưu hoá nâng cao (AGP 8.12+)
+
+```properties
+# gradle.properties
+android.r8.optimizedResourceShrinking=true
+```
+
+</div>
+
+::right::
+
+<div class="mt-2">
+
+## Lợi ích của R8
+
+<div class="space-y-2 text-xs">
+
+### 📊 Reddit Case Study
+
+**Field:** 40% faster startup • 30% ↓ ANR • 25% ↑ rendering • 14% ↓ size
+
+**Benchmark:** 55% faster • 67% ↓ JIT • 19% ↑ frames • < 2 tuần
+
+### 🚀 Performance
+
+- Khởi động nhanh hơn • Cải thiện rendering
+- Giảm ANR errors • Giảm JIT compilation
+
+### 📦 App Size
+
+- **Tree shaking**: Xóa code không dùng
+- **Resource shrinking**: Xóa tài nguyên thừa
+- **Minification**: Tên ngắn gọn
+
+### 🔒 Security
+
+- Code khó đọc • Khó reverse engineer
+
+### ⚡ Jetpack Compose
+
+- Inline composables • Optimize recomposition
+
+</div>
+
+</div>
+
+---
+layout: two-cols
+---
+
+# Chọn thư viện khôn ngoan cho R8
+
+<div class="mt-4">
+
+## ✅ Thư viện tương thích
+
+<div class="space-y-3 text-sm">
+
+### Serialization
+
+- ✅ **Kotlin Serialization** (codegen)
+- ✅ **Moshi** với KSP (codegen)
+- ❌ **Gson** (reflection - gây vấn đề)
+
+### Dependency Injection
+
+- ✅ **Hilt** (codegen)
+- ✅ **Koin** (runtime - cẩn thận)
+- ✅ **Dagger** (codegen)
+
+### Database
+
+- ✅ **Room** (codegen)
+- ❌ Thư viện dùng reflection
+
+### AndroidX Libraries
+
+- ✅ Tất cả AndroidX (tối ưu sẵn)
+- ✅ Jetpack Compose (codegen)
+
+</div>
+
+</div>
+
+::right::
+
+<div class="mt-4">
+
+## 🎯 Ví dụ Migration
+
+### Gson → Kotlin Serialization
+
+```kotlin
+// ❌ Gson (reflection)
+data class User(val name: String)
+Gson().fromJson(json, User::class.java)
+// Lỗi khi R8 bật vì reflection
+
+// ✅ Kotlin Serialization (codegen)
+@Serializable
+data class User(val name: String)
+Json.decodeFromString<User>(json)
+// Hoạt động tốt với R8
+```
+
+### Tips quan trọng
+
+- Tránh thư viện có quy tắc giữ toàn package
+- Kiểm tra issue tracker về R8/ProGuard
+- Test sau khi bật R8
+- Sử dụng codegen hơn reflection
+
+</div>
+
+---
+
 layout: center
 class: text-center
+
 ---
 
 # Kết luận & Q&A
@@ -650,4 +824,3 @@ class: text-center
 Mobile Reverse Engineering & Security Seminar
 
 </div>
-
